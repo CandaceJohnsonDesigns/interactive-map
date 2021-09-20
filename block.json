@@ -1,0 +1,24 @@
+{
+	"apiVersion": 2,
+	"name": "cjd-blocks/usa-map",
+	"version": "0.1.0",
+	"title": "Interactive USA Map",
+	"category": "theme",
+	"icon": "location-alt",
+	"description": "An interative map of the US that highlights certain states by filtering criteria.",
+	"attributes": {
+		"initialColor": {
+			"type": "string"
+		},
+		"highlightColor": {
+			"type": "string"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "usa-map",
+	"editorScript": "file:./build/index.js",
+	"editorStyle": "file:./build/index.css",
+	"style": "file:./build/style-index.css"
+}
