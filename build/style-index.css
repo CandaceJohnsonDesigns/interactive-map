@@ -7,10 +7,31 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
-.wp-block-cjd-blocks-usa-map {
-  background-color: #21759b;
-  color: #fff;
-  padding: 2px;
+.wp-block-cjd-blocks-interactive-map {
+  --cjd-blocks--interactive-map--map-color: #D0D0D0;
+  --cjd-blocks--interactive-map--highlight-color: rgb(113, 199, 142);
+  --cjd-blocks--interactive-map--stroke-color: #FFFFFF;
+  /* default color for all states not specified below */
+  /* color and width of borders between states */
+  /* set display to yes to show the circle for the District of Columbia, or none to hide it */
+  /* color and width of lines around Alaska and Hawaii */
+}
+.wp-block-cjd-blocks-interactive-map .divisions {
+  fill: var(--cjd-blocks--interactive-map--map-color);
+}
+.wp-block-cjd-blocks-interactive-map .borders {
+  stroke: var(--cjd-blocks--interactive-map--stroke-color);
+  stroke-width: 1px;
+}
+.wp-block-cjd-blocks-interactive-map .highlight {
+  fill: var(--cjd-blocks--interactive-map--highlight-color);
+}
+.wp-block-cjd-blocks-interactive-map .dccircle {
+  display: none;
+}
+.wp-block-cjd-blocks-interactive-map .separator1 {
+  stroke: #B0B0B0;
+  stroke-width: 2px;
 }
 
 /*# sourceMappingURL=style-index.css.map*/

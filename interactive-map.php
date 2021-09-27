@@ -1,16 +1,16 @@
 <?php
 /**
- * Plugin Name:       Interactive USA Map
- * Description:       An interative map of the US that highlights certain states by filtering criteria.
+ * Plugin Name:       Interactive Map
+ * Description:       An interactive map that highlights certain states by filtering criteria.
  * Requires at least: 5.8
  * Requires PHP:      7.0
  * Version:           0.1.0
- * Author:            The WordPress Contributors
+ * Author:            Candace Johnson Designs
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       usa-map
+ * Text Domain:       interactive-map
  *
- * @package           cjd-blocks/usa-map
+ * @package           cjd-blocks/interactive-map
  */
 
 /**
@@ -20,7 +20,7 @@
  *
  * @see https://developer.wordpress.org/block-editor/tutorials/block-tutorial/writing-your-first-block-type/
  */
-function cjd_blocks_usa_map_block_init() {
+function cjd_blocks_interactive_map_block_init() {
 	register_block_type( __DIR__ );
 }
-add_action( 'init', 'cjd_blocks_usa_map_block_init' );
+add_action( 'init', 'cjd_blocks_interactive_map_block_init' );

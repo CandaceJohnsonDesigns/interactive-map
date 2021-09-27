@@ -4,7 +4,8 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
  */
 import { registerBlockType } from '@wordpress/blocks';
-
+import { withColors } from '@wordpress/block-editor';
+import { compose } from '@wordpress/compose';
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
  * All files containing `style` keyword are bundled together. The code used
@@ -17,7 +18,7 @@ import './style.scss';
 /**
  * Internal dependencies
  */
-import USA_Map_Edit from './edit';
+import Edit from './edit';
 import save from './save';
 
 /**
@@ -25,11 +26,11 @@ import save from './save';
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
  */
-registerBlockType( 'cjd-blocks/usa-map', {
+registerBlockType( 'cjd-blocks/interactive-map', {
 	/**
 	 * @see ./edit.js
 	 */
-	edit: USA_Map_Edit,
+	edit: withColors( { mapColor: 'color', highlightColor: 'color' } )(Edit),
 
 	/**
 	 * @see ./save.js

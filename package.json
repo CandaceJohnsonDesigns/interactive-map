@@ -1,7 +1,7 @@
 {
-	"name": "usa-map",
+	"name": "interactive-map",
 	"version": "0.1.0",
-	"description": "An interative map of the US that highlights certain states by filtering criteria.",
+	"description": "An interative map that highlights certain states by filtering criteria.",
 	"author": "Candace Johnson Designs",
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
@@ -16,7 +16,8 @@
 	"dependencies": {
 		"@wordpress/block-editor": "^7.0.2",
 		"@wordpress/blocks": "^11.1.0",
-		"@wordpress/i18n": "^4.2.2"
+		"@wordpress/i18n": "^4.2.2",
+		"classnames": "^2.3.1"
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "^18.0.1"
