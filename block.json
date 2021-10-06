@@ -7,16 +7,168 @@
 	"icon": "location-alt",
 	"description": "An interactive map that highlights certain states by filtering criteria.",
 	"attributes": {
-		"id": {
+		"mapId": {
 			"type": "string"
 		},
-		"filterType": {
-			"type": "string",
-			"default": "Category"
+		"mapOf": {
+			"enum": [ "usa" ],
+			"default": "usa"
 		},
 		"filterOptions": {
 			"type": "array",
 			"default": []
+		},
+		"mapDivisions": {
+			"type": "object",
+			"default": {}
+		},
+		"infoWindows": {
+			"type": "object",
+			"default": {
+				"az": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Commercial",
+						"Senior Housing"
+					]
+				},
+				"ca": {
+					"Projects Completed": "10+",
+					"Project Types": [
+						"Commercial",
+						"Senior Housing",
+						"Multi-family"
+					]
+				},
+				"co": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Commercial"
+					]
+				},
+				"ct": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"de": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"fl": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"id": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing",
+						"Multi-family"
+					]
+				},
+				"md": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"ma": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"mo": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"mt": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"ne": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"nv": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing",
+						"Commercial",
+						"Healthcare"
+					]
+				},
+				"nj": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"ny": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"oh": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"or": {
+					"Projects Completed": "20+",
+					"Project Types": [
+						"Commercial",
+						"Senior Housing",
+						"Multi-family",
+						"Healthcare"
+					]
+				},
+				"pa": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"tx": {
+					"Projects Completed": "15+",
+					"Project Types": [
+						"Commercial",
+						"Senior Housing",
+						"Multi-family"
+					]
+				},
+				"va": {
+					"Projects Completed": "<5",
+					"Project Types": [
+						"Senior Housing"
+					]
+				},
+				"wa": {
+					"Projects Completed": "15+",
+					"Project Types": [
+						"Commercial",
+						"Senior Housing",
+						"Multi-family"
+					]
+				}
+			}
+		},
+		"newProjectsCompleted": {
+			"type": "string",
+			"default": ""
 		},
 		"mapColor": {
 			"type": "string"
@@ -32,5 +184,6 @@
 	"textdomain": "interactive-map",
 	"editorScript": "file:./build/index.js",
 	"editorStyle": "file:./build/index.css",
+	"script": "file:./packages/info-window-functionality.js",
 	"style": "file:./build/style-index.css"
 }

@@ -10,8 +10,14 @@
 	--cjd-blocks--interactive-map--highlight-color: rgb(113, 199, 142);
 	--cjd-blocks--interactive-map--stroke-color: #FFFFFF;
 
-	.divisions {
+	svg {
+		overflow: visible;
+	}
+
+	.division {
 		fill: var(--cjd-blocks--interactive-map--map-color);
+		stroke: var(--cjd-blocks--interactive-map--stroke-color);
+		stroke-width: 1px;
 	} /* default color for all states not specified below */
 
 	.borders {
@@ -27,8 +33,53 @@
 		display: none;
 	} /* set display to yes to show the circle for the District of Columbia, or none to hide it */
 
-	.separator1 {
+	.separators {
 		stroke: #B0B0B0;
 		stroke-width: 2px;
 	} /* color and width of lines around Alaska and Hawaii */
+
+	.info-window {
+		background-color: rgb(218, 218, 218, .9);
+		border-radius: 6px;
+		padding: 1em;
+		width: max-content;
+		pointer-events: none;
+	}
+
+	foreignObject {
+		width: 100px;
+		height: 50px;
+		overflow: auto;
+	}
+
+	.info-window-title {
+		&:only-child {
+			margin: 0;
+		}
+	}
+
+	.info-window-desc {
+		padding-bottom: .25em;
+		padding-left: 1em;
+		border-left: 2px solid;
+
+		& :last-child {
+			margin-bottom: 0;
+		}
+
+		ul {
+			list-style: none;
+			padding-left: 0;
+		}
+
+		li {
+			margin-bottom: 0;
+		}
+	}
+
+	.info-window-subtitle {
+		font-weight: bold;
+		margin-bottom: .25em;
+	}
+
 }

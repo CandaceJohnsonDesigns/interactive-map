@@ -14,8 +14,9 @@ import { __ } from '@wordpress/i18n';
 import { useBlockProps } from '@wordpress/block-editor';
 import { SelectControl, BaseControl } from '@wordpress/components';
 
-import USA_Map from './maps.js';
-import countries from './countries.js';
+import maps from './maps.js';
+import Division from './division.js';
+import InfoWindow from './info-window';
 
 /**
  * The save function defines the way in which the different attributes should
@@ -26,12 +27,11 @@ import countries from './countries.js';
  *
  * @return {WPElement} Element to render.
  */
-export default function save( {attributes} ) {
+export default function save( { attributes } ) {
 
-	const { mapColor, highlightColor, filterType, filterOptions } = attributes;
+	const { mapOf, mapId, mapColor, highlightColor, infoWindows } = attributes;
 
-	const country = "usa";
-	const { divisions } = countries[country];
+	const { name, divisionName, viewBox, divisions, borders, separators } = maps[mapOf];
 
 	const mapColorStyle =
 		mapColor !== undefined ? {
@@ -43,42 +43,80 @@ export default function save( {attributes} ) {
 			"--cjd-blocks--interactive-map--highlight-color": `var(--wp--preset--color--${highlightColor})`
 		} : {};
 
-	const filterClasses = [];
+	const divisionSet = [];
+	const infoWindowSet = [];
 
-	const filterControl = (
-		<>
-			{ filterOptions.length > 1 &&
-			// <BaseControl
-			// 	label={ __( `Filter by ${filterType}` ) }
-			// >
-			// 	<select>
-			// 		{ filterOptions.map( ( filterOption, index ) => (
-			// 			<option value={ filterOption } key={ index }>{ filterOption }</option>
-			// 		) ) }
-			// 	</select>
-			// </BaseControl>
+	for ( const [ key, division ] of Object.entries( divisions ) ) {
 
-			// <SelectControl
-			// 	label={ __( `Filter by ${filterType}` ) }
-			// 	options={ filterOptions }
-			// />
-			<form>
-				<label for="interactive-map-filter">{ __( `Filter by ${filterType}` ) }</label>
-				<select name="interactive-map-filter" id="interactive-map">
-					{ filterOptions.map( ( filterOption, index ) => (
-					<option value={ filterOption } key={ index }>{ filterOption }</option>
-					) ) }
-				</select>
-			</form>
+		let hasInformation = false;
+
+		const content = [];
+
+		if ( infoWindows.hasOwnProperty( [ key ] ) ) {
+			hasInformation = true;
+
+			if ( hasInformation && infoWindows[ key ][ "Projects Completed" ] !== '' ) {
+
+				content.push(
+					<p>
+						<span class="info-window-subtitle">Projects Completed: </span>
+						{ infoWindows[ key ][ "Projects Completed" ] }
+					</p>
+				);
 			}
-		</>
-	);
+
+			if ( hasInformation && infoWindows[ key ][ "Project Types" ] !== [] ) {
+
+			const listItems = infoWindows[ key ][ "Project Types" ].map( ( item ) =>
+				<li key={ item }>{ item }</li>
+			);
+
+			content.push(
+				<>
+					<p class="info-window-subtitle">Project Types</p>
+					<ul>
+						{ listItems }
+					</ul>
+				</>
+			);
+		}
+
+		};
+
+		infoWindowSet.push(
+			<InfoWindow
+				infoFor={ key }
+				title={ division.name }
+				center={ division.center }
+				content={ content }
+			/>
+		);
+
+		divisionSet.push(
+			<Division
+				id={ key }
+				name={ division.name }
+				path={ division.path }
+				ofMap={ mapId }
+				isHighlighted={ hasInformation }
+			/>
+		);
+	}
 
 	return (
 		<div { ...useBlockProps.save() } style={ Object.assign( {}, mapColorStyle, highlightColorStyle ) }>
-			{ filterControl }
-			{ filterOptions.length }
-			<USA_Map divisions={ divisions } filterClasses={ filterClasses } />
+			{/* { filterControl } */}
+			<svg xmlns="http://www.w3.org/2000/svg"
+				id={ `cjd-blocks-interactive-map-${ mapId }` }
+				viewBox={ viewBox }
+				preserveAspectRatio="true"
+				overflow="auto"
+			>
+				{ divisionSet }
+				{/* { borders.render() } */}
+				{ separators.render() }
+				{ infoWindowSet }
+			</svg>
 		</div>
 	);
 }
