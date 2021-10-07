@@ -257,7 +257,6 @@ function Edit( {
 			<InfoWindow
 				infoFor={ key }
 				title={ division.name }
-				center={ division.center }
 				content={ content }
 			/>
 		);
@@ -435,7 +434,7 @@ function Edit( {
 	} : {};
 
 	return (
-		<div { ...useBlockProps( ) } style={ Object.assign( {}, mapColorStyle, highlightColorStyle ) } >
+		<div { ...useBlockProps( { className: "is-info-window-bounds" } ) } style={ Object.assign( {}, mapColorStyle, highlightColorStyle ) } >
 			{ controls }
 			{/* { filterControl } */}
 			<svg xmlns="http://www.w3.org/2000/svg"
@@ -446,8 +445,9 @@ function Edit( {
 				{ divisionSet }
 				{/* { borders.render() } */}
 				{ separators.render() }
-				{ infoWindowSet }
+				{/* { infoWindowSet } */}
 			</svg>
+			{ infoWindowSet }
 		</div>
 	);
 }

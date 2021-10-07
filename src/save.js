@@ -87,7 +87,6 @@ export default function save( { attributes } ) {
 			<InfoWindow
 				infoFor={ key }
 				title={ division.name }
-				center={ division.center }
 				content={ content }
 			/>
 		);
@@ -104,7 +103,7 @@ export default function save( { attributes } ) {
 	}
 
 	return (
-		<div { ...useBlockProps.save() } style={ Object.assign( {}, mapColorStyle, highlightColorStyle ) }>
+		<div { ...useBlockProps.save( { className: "is-info-window-bounds" } ) } style={ Object.assign( {}, mapColorStyle, highlightColorStyle ) }>
 			{/* { filterControl } */}
 			<svg xmlns="http://www.w3.org/2000/svg"
 				id={ `cjd-blocks-interactive-map-${ mapId }` }
@@ -115,8 +114,9 @@ export default function save( { attributes } ) {
 				{ divisionSet }
 				{/* { borders.render() } */}
 				{ separators.render() }
-				{ infoWindowSet }
+				{/* { infoWindowSet } */}
 			</svg>
+			{ infoWindowSet }
 		</div>
 	);
 }

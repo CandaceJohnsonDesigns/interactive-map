@@ -1,7 +1,7 @@
 {
 	"apiVersion": 2,
 	"name": "cjd-blocks/interactive-map",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"title": "Interactive Map",
 	"category": "theme",
 	"icon": "location-alt",
@@ -43,7 +43,8 @@
 				"co": {
 					"Projects Completed": "<5",
 					"Project Types": [
-						"Commercial"
+						"Commercial",
+						"Senior Housing"
 					]
 				},
 				"ct": {
@@ -61,6 +62,7 @@
 				"fl": {
 					"Projects Completed": "<5",
 					"Project Types": [
+						"Commercial",
 						"Senior Housing"
 					]
 				},
@@ -147,7 +149,8 @@
 					"Project Types": [
 						"Commercial",
 						"Senior Housing",
-						"Multi-family"
+						"Multi-family",
+						"Healthcare"
 					]
 				},
 				"va": {

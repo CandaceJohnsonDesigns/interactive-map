@@ -390,7 +390,6 @@ function Edit({
     infoWindowSet.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_info_window__WEBPACK_IMPORTED_MODULE_11__["default"], {
       infoFor: key,
       title: division.name,
-      center: division.center,
       content: content
     }));
     divisionSet.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_division_js__WEBPACK_IMPORTED_MODULE_9__["default"], {
@@ -546,14 +545,16 @@ function Edit({
   const highlightColorStyle = highlightColor !== undefined ? {
     "--cjd-blocks--interactive-map--highlight-color": `var(--wp--preset--color--${highlightColor})`
   } : {};
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_5__.useBlockProps)(), {
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_5__.useBlockProps)({
+    className: "is-info-window-bounds"
+  }), {
     style: Object.assign({}, mapColorStyle, highlightColorStyle)
   }), controls, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("svg", {
     xmlns: "http://www.w3.org/2000/svg",
     id: `cjd-blocks-interactive-map-${mapId}`,
     viewBox: viewBox,
     preserveAspectRatio: "true"
-  }, divisionSet, separators.render(), infoWindowSet));
+  }, divisionSet, separators.render()), infoWindowSet);
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (Edit);
@@ -678,23 +679,28 @@ function InfoWindow({
   content,
   center
 }) {
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("foreignObject", {
-    id: `info-window-for-${infoFor}`,
-    class: "info-window-container screen-reader-text",
-    width: "200",
-    height: "300",
-    x: center ? `${center.x}` : ``,
-    y: center ? `${center.y}` : ``,
-    "data-info-for": `${infoFor}`
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    class: "info-window"
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h6", {
-    id: `info-window-title-${infoFor}`,
-    class: "info-window-title"
-  }, title), content && content.length > 0 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    id: `info-window-desc-${infoFor}`,
-    class: "info-window-desc"
-  }, content)));
+  return (// <foreignObject
+    // 	id={ `info-window-for-${ infoFor }` }
+    // 	class="info-window-container screen-reader-text"
+    // 	width="200"
+    // 	height="300"
+    // 	x={ center ? `${ center.x }` : `` }
+    // 	y={ center ? `${ center.y }` : `` }
+    // 	data-info-for={ `${ infoFor }`}
+    // >
+    (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      id: `info-window-for-${infoFor}`,
+      "data-info-for": `${infoFor}`,
+      class: "info-window screen-reader-text"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h6", {
+      id: `info-window-title-${infoFor}`,
+      class: "info-window-title"
+    }, title), content && content.length > 0 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      id: `info-window-desc-${infoFor}`,
+      class: "info-window-desc"
+    }, content)) // </foreignObject>
+
+  );
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (InfoWindow);
@@ -1580,7 +1586,6 @@ function save({
     infoWindowSet.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_info_window__WEBPACK_IMPORTED_MODULE_7__["default"], {
       infoFor: key,
       title: division.name,
-      center: division.center,
       content: content
     }));
     divisionSet.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_division_js__WEBPACK_IMPORTED_MODULE_6__["default"], {
@@ -1592,7 +1597,9 @@ function save({
     }));
   }
 
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.useBlockProps.save(), {
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.useBlockProps.save({
+    className: "is-info-window-bounds"
+  }), {
     style: Object.assign({}, mapColorStyle, highlightColorStyle)
   }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("svg", {
     xmlns: "http://www.w3.org/2000/svg",
@@ -1600,7 +1607,7 @@ function save({
     viewBox: viewBox,
     preserveAspectRatio: "true",
     overflow: "auto"
-  }, divisionSet, separators.render(), infoWindowSet));
+  }, divisionSet, separators.render()), infoWindowSet);
 }
 
 /***/ }),

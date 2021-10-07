@@ -10,9 +10,7 @@
 	--cjd-blocks--interactive-map--highlight-color: rgb(113, 199, 142);
 	--cjd-blocks--interactive-map--stroke-color: #FFFFFF;
 
-	svg {
-		overflow: visible;
-	}
+	position: relative;
 
 	.division {
 		fill: var(--cjd-blocks--interactive-map--map-color);
@@ -44,6 +42,7 @@
 		padding: 1em;
 		width: max-content;
 		pointer-events: none;
+		position: absolute;
 	}
 
 	foreignObject {

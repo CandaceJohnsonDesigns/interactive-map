@@ -4,7 +4,7 @@
  * Description:       An interactive map that highlights certain states by filtering criteria.
  * Requires at least: 5.8
  * Requires PHP:      7.0
- * Version:           0.1.0
+ * Version:           1.0.0
  * Author:            Candace Johnson Designs
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html

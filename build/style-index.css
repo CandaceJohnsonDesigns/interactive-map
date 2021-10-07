@@ -11,13 +11,11 @@
   --cjd-blocks--interactive-map--map-color: #D0D0D0;
   --cjd-blocks--interactive-map--highlight-color: rgb(113, 199, 142);
   --cjd-blocks--interactive-map--stroke-color: #FFFFFF;
+  position: relative;
   /* default color for all states not specified below */
   /* color and width of borders between states */
   /* set display to yes to show the circle for the District of Columbia, or none to hide it */
   /* color and width of lines around Alaska and Hawaii */
-}
-.wp-block-cjd-blocks-interactive-map svg {
-  overflow: visible;
 }
 .wp-block-cjd-blocks-interactive-map .division {
   fill: var(--cjd-blocks--interactive-map--map-color);
@@ -46,6 +44,7 @@
   width: -moz-max-content;
   width: max-content;
   pointer-events: none;
+  position: absolute;
 }
 .wp-block-cjd-blocks-interactive-map foreignObject {
   width: 100px;
