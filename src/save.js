@@ -114,7 +114,6 @@ export default function save( { attributes } ) {
 				{ divisionSet }
 				{/* { borders.render() } */}
 				{ separators.render() }
-				{/* { infoWindowSet } */}
 			</svg>
 			{ infoWindowSet }
 		</div>

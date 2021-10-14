@@ -106,43 +106,21 @@ const Division = ({
   id,
   ofMap,
   path,
-  isHighlighted
+  isHighlighted,
+  openInfoWindow,
+  closeInfoWindow
 }) => {
   const divisionClasses = classnames__WEBPACK_IMPORTED_MODULE_1___default()('division', 'has-info-window', {
     'highlight': isHighlighted
-  }); // const [ isHovered, setIsHovered ] = useState( false );
-  // const [ infoWindowPosition, setInfoWindowPosition ] = useState( { x: 0, y: 0 } );
-  // useEffect(() => {
-  // 	const infoWindow = document.querySelector(`#info-window-for-${id}`);
-  // 	if ( infoWindow ) {
-  // 		infoWindow.setAttribute( 'x', infoWindowPosition.x );
-  // 		infoWindow.setAttribute( 'y', infoWindowPosition.y );
-  // 		let infoWindowClasses = infoWindow.classList;
-  // 		infoWindowClasses.toggle("screen-reader-text");
-  // 	}
-  // }, [ isHovered ] );
-  // function getCursor( evt, svg ) {
-  // 	let point = svg.createSVGPoint();
-  // 	point.x = evt.clientX;
-  // 	point.y = evt.clientY;
-  // 	return point.matrixTransform( svg.getScreenCTM().inverse() );
-  // }
-  // const toggleInfoWindow = (e) => {
-  // 	const map = document.querySelector(`#cjd-blocks-interactive-map-${ ofMap }`);
-  // 	const position = getCursor( e, map );
-  // 	setInfoWindowPosition( {
-  // 		x: position.x,
-  // 		y: position.y
-  // 	} );
-  // 	setIsHovered( !isHovered );
-  // };
-
+  });
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("svg", {
     id: id,
     class: divisionClasses,
     "aria-labelledby": `info-window-title-${id}`,
     "aria-describedby": `info-window-desc-${id}`,
-    focusable: "true"
+    focusable: "true",
+    onClick: () => openInfoWindow(id),
+    onBlur: () => closeInfoWindow(id)
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("path", {
     d: path
   }));
@@ -176,8 +154,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./editor.scss */ "./src/editor.scss");
 /* harmony import */ var _maps_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./maps.js */ "./src/maps.js");
 /* harmony import */ var _division_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./division.js */ "./src/division.js");
-/* harmony import */ var _cjd_blocks_option__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./cjd-blocks-option */ "./src/cjd-blocks-option.js");
-/* harmony import */ var _info_window__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./info-window */ "./src/info-window.js");
+/* harmony import */ var _info_window__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./info-window */ "./src/info-window.js");
+/* harmony import */ var _cjd_blocks_option__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./cjd-blocks-option */ "./src/cjd-blocks-option.js");
 /* harmony import */ var _info_window_form__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./info-window-form */ "./src/info-window-form.js");
 
 
@@ -237,7 +215,6 @@ function Edit({
     highlightColor,
     filterOptions,
     mapDivisions,
-    newProjectsCompleted,
     infoWindows
   } = attributes;
   const defaultMapColor = mapColor;
@@ -252,9 +229,110 @@ function Edit({
     divisions,
     borders,
     separators
-  } = _maps_js__WEBPACK_IMPORTED_MODULE_8__["default"][mapOf]; // const formAttributes = {};
-  // formAttributes[ "Projects Completed" ] = '';
-  // formAttributes[ "Project Types" ] = [];
+  } = _maps_js__WEBPACK_IMPORTED_MODULE_8__["default"][mapOf];
+  const textControlLabel = "Projects Completed";
+  const filterCategoryLabel = "Project Types";
+  const [isOpen, setOpen] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+
+  const openMapFilters = () => setOpen(true);
+
+  const closeMapFilters = () => setOpen(false);
+
+  const [inFocus, setInFocus] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+
+  const onChangeFilterOption = (key = null, filterOption = null) => {
+    const newFilterOptions = filterOptions.slice(0);
+
+    if (null === filterOption) {
+      // Remove a key
+      newFilterOptions.splice(key, 1);
+
+      if (key > 0) {
+        setInFocus(key - 1);
+      }
+    } else {
+      // update a key
+      newFilterOptions.splice(key, 1, filterOption);
+      setInFocus(key);
+    }
+
+    setAttributes({
+      filterOptions: newFilterOptions
+    });
+  };
+
+  const addNewFilterOption = (key = null) => {
+    const newFilterOptions = filterOptions.slice(0);
+    let newInFocus = 0;
+
+    if ('object' === typeof key) {
+      newFilterOptions.push('');
+      newInFocus = newFilterOptions.length - 1;
+    } else {
+      newFilterOptions.splice(key + 1, 0, '');
+      newInFocus = key + 1;
+    }
+
+    setInFocus(newInFocus);
+    setAttributes({
+      filterOptions: newFilterOptions
+    });
+  };
+
+  let divisionOptions = [];
+
+  for (const [key, division] of Object.entries(divisions)) {
+    divisionOptions.push({
+      value: key,
+      label: division.name
+    });
+  }
+
+  function saveMapDivisions() {}
+
+  function initializeIsOpen(value) {
+    const initialIsOpen = {};
+    Object.keys(divisions).forEach(divisionKey => {
+      initialIsOpen[divisionKey] = value;
+    });
+    return initialIsOpen;
+  }
+
+  const [infoWindowsOpen, setIinfoWindowsOpen] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initializeIsOpen(false));
+
+  const openInfoWindow = divisionId => {
+    setIinfoWindowsOpen({ ...infoWindowsOpen,
+      [divisionId]: true
+    });
+  };
+
+  const closeInfoWindow = divisionId => {
+    setIinfoWindowsOpen({ ...infoWindowsOpen,
+      [divisionId]: false
+    });
+  };
+
+  const [projectsCompleted, setProjectsCompleted] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)('');
+  const [mapDivision, setMapDivision] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+  const [checkedFilterOptions, setCheckedFilterOptions] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(new Array(filterOptions.length).fill(false));
+
+  function onChangeFilterOptions(position) {
+    const updatedCheckedFilterOptions = checkedFilterOptions.map((item, index) => index === position ? !item : item);
+    setCheckedFilterOptions(updatedCheckedFilterOptions);
+  }
+
+  function getOptions(booleanArray, options) {
+    const indices = booleanArray.flatMap((value, index) => value ? index : []);
+    const labels = indices.map(index => options[index]);
+    return labels;
+  }
+
+  function onChangeMapDivisions(event) {
+    const value = event.target.value;
+    setAttributes({ ...mapDivisions,
+      [event.target.key]: value
+    });
+  }
 
   const controls = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_5__.InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_5__.PanelColorSettings, {
     title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Color settings'),
@@ -268,128 +346,69 @@ function Edit({
       onChange: setHighlightColor,
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)('Highlight Color')
     }]
-  }))); //	const [ inFocus, setInFocus ] = useState( 0 );
-  // const onChangeFilterOption = ( key = null, filterOption = null ) => {
-  // 	const newFilterOptions = filterOptions.slice( 0 );
-  // 	if ( null === filterOption ) {
-  // 		// Remove a key
-  // 		newFilterOptions.splice( key, 1 );
-  // 		if ( key > 0 ) {
-  // 			setInFocus( key - 1 );
-  // 		}
-  // 	} else {
-  // 		// update a key
-  // 		newFilterOptions.splice( key, 1, filterOption );
-  // 		setInFocus( key );
-  // 	}
-  // 	setAttributes( { filterOptions: newFilterOptions } );
-  // };
-  // const addNewFilterOption = ( key = null ) => {
-  // 	const newFilterOptions = filterOptions.slice( 0 );
-  // 	let newInFocus = 0;
-  // 	if ( 'object' === typeof key ) {
-  // 		newFilterOptions.push( '' );
-  // 		newInFocus = newFilterOptions.length - 1;
-  // 	} else {
-  // 		newFilterOptions.splice( key + 1, 0, '' );
-  // 		newInFocus = key + 1;
-  // 	}
-  // 	setInFocus( newInFocus );
-  // 	setAttributes( { filterOptions: newFilterOptions } );
-  // };
-  // const [ isOpen, setOpen ] = useState( false );
-  // const openMapFilters = () => setOpen( true );
-  // const closeMapFilters = () => setOpen( false );
-  //const divisionControls = [];
-
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.Panel, {
+    header: `${divisionName.singular} Settings`
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.PanelBody, {
+    title: (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.SelectControl, {
+      value: mapDivision,
+      options: divisionOptions,
+      onChange: selectedDivision => setMapDivision(selectedDivision)
+    }),
+    key: mapDivision,
+    initialOpen: true
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.TextControl, {
+    label: "Projects Completed",
+    value: projectsCompleted,
+    onChange: setProjectsCompleted
+  }), filterOptions && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("ul", null, filterOptions.map((option, index) => {
+    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("li", {
+      key: index
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.CheckboxControl, {
+      label: option,
+      checked: checkedFilterOptions[index],
+      onChange: () => onChangeFilterOptions(index)
+    }));
+  })))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("p", null, JSON.stringify({
+    [mapDivision]: {
+      [textControlLabel]: projectsCompleted,
+      [filterCategoryLabel]: getOptions(checkedFilterOptions, filterOptions)
+    }
+  }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.Button, {
+    className: "coblocks-field-multiple__add-option",
+    icon: "insert",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Add new division information", 'interactive-map')
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Add new division information", 'interactive-map')))));
   const divisionSet = [];
-  const infoWindowSet = []; //const divisionOptions = {};
-  // for ( const [ key, division ] of Object.entries( divisions ) ) {
-  // 	divisionOptions =
-  // }
-  // const divisionOptions = [];
-  // for ( const [ key, division ] of Object.entries( divisions ) ) {
-  // 	divisionOptions.push( { label: division.name, value: key } );
-  // }
+  const infoWindowSet = [];
 
   for (const [key, division] of Object.entries(divisions)) {
-    // const cleanFilterOptions = filterOptions.filter( function( e ) { return e === 0 || e } );
-    // const [ projectsCompleted, setProjectsCompleted ] = useState( '' );
-    // const [ mapDivision, setMapDivision ] = useState( [] );
-    let hasInformation = false; // divisionControls.push(
-    // 	<PanelBody key={ key } title={ division.name } initialOpen={ false }>
-    // 		<PanelRow>
-    // 			<SelectControl
-    // 				label="Division"
-    // 				value={ mapDivision }
-    // 				options={ divisionOptions }
-    // 				onChange={ ( token ) => setSelectedDivision( token ) }
-    // 			/>
-    // 			<InfoWindowForm>
-    // 				<TextControl
-    // 					label="Projects Completed"
-    // 					value={ projectsCompleted }
-    // 					onChange={ setProjectsCompleted }
-    // 				/>
-    // 				{ cleanFilterOptions.length > 0 &&
-    // 					cleanFilterOptions.map( ( filterOption, index ) => (
-    // 						<CheckboxControl key={ index }
-    // 							label={ filterOption }
-    // 						/>
-    // 					))
-    // 				}
-    // 			</InfoWindowForm>
-    // 		</PanelRow>
-    // 	</PanelBody>
-    // );
-    // const content = [];
-    // if ( projectsCompleted && projectsCompleted !== '' ) {
-    // 	content.push(
-    // 		<p>
-    // 			<span class="info-window-subtitle">Projects Completed</span>:
-    // 			{ projectsCompleted }
-    // 		</p>
-    // 	);
-    // }
-    // if ( projectTypes && projectTypes !== [] ) {
-    // 	const listItems = projectTypes.map( ( item ) =>
-    // 		<li key={ item }>{ item }</li>
-    // 	);
-    // 	content.push(
-    // 		<>
-    // 			<p class="info-window-subtitle">Project Types</p>
-    // 			<ul>
-    // 				{ listItems }
-    // 			</ul>
-    // 		</>
-    // 	);
-    // }
-
+    let hasInformation = false;
     const content = [];
 
     if (infoWindows.hasOwnProperty([key])) {
       hasInformation = true;
 
-      if (hasInformation && infoWindows[key]["Projects Completed"] !== '') {
+      if (hasInformation && infoWindows[key][`${textControlLabel}`] !== '') {
         content.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("p", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("span", {
           class: "info-window-subtitle"
-        }, "Projects Completed: "), infoWindows[key]["Projects Completed"]));
+        }, textControlLabel, ": "), infoWindows[key][`${textControlLabel}`]));
       }
 
-      if (hasInformation && infoWindows[key]["Project Types"] !== []) {
-        const listItems = infoWindows[key]["Project Types"].map(item => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("li", {
+      if (hasInformation && infoWindows[key][`${filterCategoryLabel}`] !== []) {
+        const listItems = infoWindows[key][`${filterCategoryLabel}`].map(item => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("li", {
           key: item
         }, item));
         content.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("p", {
           class: "info-window-subtitle"
-        }, "Project Types"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("ul", null, listItems)));
+        }, textControlLabel), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("ul", null, listItems)));
       }
     }
 
     ;
-    infoWindowSet.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_info_window__WEBPACK_IMPORTED_MODULE_11__["default"], {
+    infoWindowSet.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_info_window__WEBPACK_IMPORTED_MODULE_10__["default"], {
       infoFor: key,
       title: division.name,
+      isOpen: infoWindowsOpen[key],
       content: content
     }));
     divisionSet.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_division_js__WEBPACK_IMPORTED_MODULE_9__["default"], {
@@ -397,148 +416,40 @@ function Edit({
       name: division.name,
       path: division.path,
       ofMap: mapId,
-      isHighlighted: hasInformation
+      isHighlighted: hasInformation,
+      openInfoWindow: openInfoWindow,
+      closeInfoWindow: closeInfoWindow
     }));
-  } // for ( const [ division, information ] of Object.entries( mapDivisions ) ) {
-  // 	const content = [];
-  // 	if ( information ) {
-  // 		for ( const [ key, value ] of Object.entries( information ) ) {
-  // 			if ( Array.isArray( value ) ) {
-  // 				const listItems = value.map( ( item ) =>
-  // 					<li key={ item }>{ item }</li>
-  // 				);
-  // 				content.push(
-  // 					<>
-  // 						<p class="info-window-subtitle">{ key }</p>
-  // 						<ul>
-  // 							{ listItems }
-  // 						</ul>
-  // 					</>
-  // 				);
-  // 			} else {
-  // 				content.push(
-  // 					<p><span class="info-window-subtitle">{ key }</span>: { value }</p>
-  // 				);
-  // 			}
-  // 		}
-  // 	}
-  // 	infoWindowSet.push(
-  // 		<InfoWindow
-  // 			infoFor={ division }
-  // 			title={ divisions[ division ].name }
-  // 			center={ divisions[ division ].center }
-  // 			content={ content }
-  // 		/>
-  // 	);
-  // }
-  // const filterControl = (
-  // 	<>
-  // 		{ isSelected && (
-  // 			<Button
-  // 				icon={ filterOptions.length >= 1 ? "edit" : "insert" }
-  // 				label={ filterOptions.length >= 1 ? "Edit Map Filters" : "Add Map Filter" }
-  // 				onClick={ openMapFilters }
-  // 			>
-  // 				{ filterOptions.length >= 1 ? __( 'Edit Map Filter', 'interactive-map' ) : __( 'Add Map Filter', 'interactive-map' ) }
-  // 			</Button>
-  // 		)}
-  // 		{ isOpen && (
-  // 			<Modal title="Map Filters" onRequestClose={ closeMapFilters }>
-  // 				<ol>
-  // 					{ filterOptions.map( ( filterOption, index ) => (
-  // 						<FieldOption
-  // 							type='select'
-  // 							key={ index }
-  // 							option={ filterOption }
-  // 							index={ index }
-  // 							onChangeOption={ onChangeFilterOption }
-  // 							onAddOption={ addNewFilterOption }
-  // 							isInFocus={ index === inFocus && isSelected }
-  // 							isSelected={ isSelected }
-  // 						/>
-  // 					) ) }
-  // 					<Button
-  // 						className="coblocks-field-multiple__add-option"
-  // 						icon="insert"
-  // 						label={ __( "Add filter option", 'interactive-map' ) }
-  // 						onClick={ addNewFilterOption }
-  // 					>
-  // 						{ __( "Add filter option", 'interactive-map' ) }
-  // 					</Button>
-  // 				</ol>
-  // 				{ filterOptions.length >= 1 && (
-  // 					<Panel header={ `${ divisionName.singular } settings` }>
-  // 						{ divisionControls }
-  // 					</Panel>
-  // 				)}
-  // 			</Modal>
-  // 		) }
-  // 	</>
-  // );
-  // const [ projectsCompleted, setProjectsCompleted ] = useState( '' );
-  // const [ mapDivision, setMapDivision ] = useState( [] );
-  // 	const filterControl = (
-  // 	<>
-  // 		{ isSelected && (
-  // 			<Button
-  // 				icon={ infoWindows.length >= 1 ? "edit" : "insert" }
-  // 				label={ infoWindows.length >= 1 ? "Edit Info Windows" : "Add Info Window" }
-  // 				onClick={ openMapFilters }
-  // 			>
-  // 				{ filterOptions.length >= 1 ? __( 'Edit Info Windows', 'interactive-map' ) : __( 'Add Info Windows', 'interactive-map' ) }
-  // 			</Button>
-  // 		)}
-  // 		{ isOpen && (
-  // 			<Modal title="Info Windows" onRequestClose={ closeMapFilters }>
-  // 				<Panel>
-  // 					{/* { filterOptions.map( ( filterOption, index ) => (
-  // 						<FieldOption
-  // 							type='select'
-  // 							key={ index }
-  // 							option={ filterOption }
-  // 							index={ index }
-  // 							onChangeOption={ onChangeFilterOption }
-  // 							onAddOption={ addNewFilterOption }
-  // 							isInFocus={ index === inFocus && isSelected }
-  // 							isSelected={ isSelected }
-  // 						/>
-  // 					) ) } */}
-  // 					<PanelBody
-  // 						key={ mapDivision }
-  // 						title={ isSelected ? (
-  // 							<SelectControl
-  // 								label="Division"
-  // 								value={ mapDivision }
-  // 								options={ divisionOptions }
-  // 								onChange={ ( selectedDivision ) => setMapDivision( selectedDivision ) }
-  // 							/>
-  // 							) : ( mapDivision )
-  // 						}
-  // 						initialOpen={ false }>
-  // 						<PanelRow>
-  // 						<InfoWindowForm filterOptions={ filterOptions } />
-  // 						</PanelRow>
-  // 					</PanelBody>
-  // 					<Button
-  // 						className="coblocks-field-multiple__add-option"
-  // 						icon="insert"
-  // 						label={ __( "Add filter option", 'interactive-map' ) }
-  // 						onClick={ addNewFilterOption }
-  // 					>
-  // 						{ __( "Add filter option", 'interactive-map' ) }
-  // 					</Button>
-  // 				</Panel>
-  // 				{/* { filterOptions.length >= 1 && (
-  // 					<Panel header={ `${ divisionName.singular } settings` }>
-  // 						{ divisionControls }
-  // 					</Panel>
-  // 				)} */}
-  // 			</Modal>
-  // 		) }
-  // 	</>
-  // );
+  }
 
-
+  const filterControl = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, isSelected && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.Button, {
+    icon: infoWindows.length >= 1 ? "edit" : "insert",
+    label: infoWindows.length >= 1 ? `Edit ${divisionName.singular} Information` : `Add ${divisionName.singular} Information`,
+    onClick: openMapFilters
+  }, filterOptions.length >= 1 ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)(`Edit ${divisionName.singular} Information`, 'interactive-map') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)(`Add ${divisionName.singular} Information`, 'interactive-map')), isOpen && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.Modal, {
+    title: "Info Windows",
+    onRequestClose: closeMapFilters
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.Panel, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.PanelBody, {
+    title: `${filterCategoryLabel}`
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("ol", null, filterOptions.map((filterOption, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_cjd_blocks_option__WEBPACK_IMPORTED_MODULE_11__["default"], {
+    type: "select",
+    key: index,
+    option: filterOption,
+    index: index,
+    onChangeOption: onChangeFilterOption,
+    onAddOption: addNewFilterOption,
+    isInFocus: index === inFocus && isSelected,
+    isSelected: isSelected
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.Button, {
+    className: "coblocks-field-multiple__add-option",
+    icon: "insert",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Add filter option", 'interactive-map'),
+    onClick: addNewFilterOption
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)("Add filter option", 'interactive-map'))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_6__.Button, {
+    icon: "save",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)(`Save ${divisionName.singular} information`, 'interactive-map'),
+    onClick: saveMapDivisions
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_4__.__)(`Save ${divisionName.singular} information`, 'interactive-map'))));
   const mapColorStyle = mapColor !== undefined ? {
     "--cjd-blocks--interactive-map--map-color": `var(--wp--preset--color--${mapColor})`
   } : {};
@@ -549,12 +460,12 @@ function Edit({
     className: "is-info-window-bounds"
   }), {
     style: Object.assign({}, mapColorStyle, highlightColorStyle)
-  }), controls, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("svg", {
+  }), controls, filterControl, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)("svg", {
     xmlns: "http://www.w3.org/2000/svg",
     id: `cjd-blocks-interactive-map-${mapId}`,
     viewBox: viewBox,
     preserveAspectRatio: "true"
-  }, divisionSet, separators.render()), infoWindowSet);
+  }, divisionSet, borders.render(), separators.render()), infoWindowSet);
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (Edit);
@@ -634,8 +545,13 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _cjd_blocks_option__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./cjd-blocks-option */ "./src/cjd-blocks-option.js");
+
+
 
 
 
@@ -643,18 +559,67 @@ __webpack_require__.r(__webpack_exports__);
 function InfoWindowForm({
   filterOptions
 }) {
-  const cleanFilterOptions = filterOptions.filter(function (e) {
-    return e === 0 || e;
-  });
   const [projectsCompleted, setProjectsCompleted] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)('');
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+  const [inFocus, setInFocus] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
+
+  const onChangeFilterOption = (key = null, filterOption = null) => {
+    const newFilterOptions = filterOptions.slice(0);
+
+    if (null === filterOption) {
+      // Remove a key
+      newFilterOptions.splice(key, 1);
+
+      if (key > 0) {
+        setInFocus(key - 1);
+      }
+    } else {
+      // update a key
+      newFilterOptions.splice(key, 1, filterOption);
+      setInFocus(key);
+    }
+
+    setAttributes({
+      filterOptions: newFilterOptions
+    });
+  };
+
+  const addNewFilterOption = (key = null) => {
+    const newFilterOptions = filterOptions.slice(0);
+    let newInFocus = 0;
+
+    if ('object' === typeof key) {
+      newFilterOptions.push('');
+      newInFocus = newFilterOptions.length - 1;
+    } else {
+      newFilterOptions.splice(key + 1, 0, '');
+      newInFocus = key + 1;
+    }
+
+    setInFocus(newInFocus);
+    setAttributes({
+      filterOptions: newFilterOptions
+    });
+  };
+
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
     label: "Projects Completed",
     value: projectsCompleted,
     onChange: setProjectsCompleted
-  }), cleanFilterOptions.length > 0 && cleanFilterOptions.map((filterOption, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.CheckboxControl, {
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("ol", null, filterOptions.map((filterOption, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_cjd_blocks_option__WEBPACK_IMPORTED_MODULE_3__["default"], {
+    type: "checkbox",
     key: index,
-    label: filterOption
-  })));
+    option: filterOption,
+    index: index,
+    onChangeOption: onChangeFilterOption,
+    onAddOption: addNewFilterOption,
+    isInFocus: index === inFocus && isSelected,
+    isSelected: isSelected
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+    className: "coblocks-field-multiple__add-option",
+    icon: "insert",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Add filter option", 'interactive-map'),
+    onClick: addNewFilterOption
+  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Add filter option", 'interactive-map'))));
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (InfoWindowForm);
@@ -677,30 +642,19 @@ function InfoWindow({
   infoFor,
   title,
   content,
-  center
+  isOpen
 }) {
-  return (// <foreignObject
-    // 	id={ `info-window-for-${ infoFor }` }
-    // 	class="info-window-container screen-reader-text"
-    // 	width="200"
-    // 	height="300"
-    // 	x={ center ? `${ center.x }` : `` }
-    // 	y={ center ? `${ center.y }` : `` }
-    // 	data-info-for={ `${ infoFor }`}
-    // >
-    (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      id: `info-window-for-${infoFor}`,
-      "data-info-for": `${infoFor}`,
-      class: "info-window screen-reader-text"
-    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h6", {
-      id: `info-window-title-${infoFor}`,
-      class: "info-window-title"
-    }, title), content && content.length > 0 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      id: `info-window-desc-${infoFor}`,
-      class: "info-window-desc"
-    }, content)) // </foreignObject>
-
-  );
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    id: `info-window-for-${infoFor}`,
+    "data-info-for": `${infoFor}`,
+    class: `info-window ${!isOpen ? 'screen-reader-text' : ''}`
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h6", {
+    id: `info-window-title-${infoFor}`,
+    class: "info-window-title"
+  }, title), content && content.length > 0 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    id: `info-window-desc-${infoFor}`,
+    class: "info-window-desc"
+  }, content));
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (InfoWindow);

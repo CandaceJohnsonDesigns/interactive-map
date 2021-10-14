@@ -6,5 +6,16 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
+.interface-complementary-area h2,
+.interface-complementary-area h3 {
+  margin-bottom: 0;
+}
+
+.components-panel__body-toggle .components-base-control:last-child {
+  margin-bottom: 0;
+}
+.components-panel__body-toggle .components-base-control__field {
+  margin-bottom: 0;
+}
 
 /*# sourceMappingURL=index.css.map*/

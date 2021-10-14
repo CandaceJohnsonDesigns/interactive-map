@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  * @see https://developer.wordpress.org/block-editor/packages/packages-block-editor/#useBlockProps
  */
 import { InspectorControls, PanelColorSettings, useBlockProps } from '@wordpress/block-editor';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import {
 	__experimentalFlex as Flex,
     __experimentalFlexBlock as FlexBlock,
@@ -39,8 +39,8 @@ import {
 import './editor.scss';
 import maps from './maps.js';
 import Division from './division.js';
-import FieldOption from './cjd-blocks-option';
 import InfoWindow from './info-window';
+import FieldOption from './cjd-blocks-option';
 import InfoWindowForm from './info-window-form';
 
 /**
@@ -66,7 +66,6 @@ function Edit( {
 		highlightColor,
 		filterOptions,
 		mapDivisions,
-		newProjectsCompleted,
 		infoWindows
 	} = attributes;
 
@@ -77,9 +76,115 @@ function Edit( {
 
 	const { name, divisionName, viewBox, divisions, borders, separators } = maps[mapOf];
 
-	// const formAttributes = {};
-	// formAttributes[ "Projects Completed" ] = '';
-	// formAttributes[ "Project Types" ] = [];
+	const textControlLabel = "Projects Completed";
+	const filterCategoryLabel = "Project Types";
+
+	const [ isOpen, setOpen ] = useState( false );
+    const openMapFilters = () => setOpen( true );
+    const closeMapFilters = () => setOpen( false );
+
+	const [ inFocus, setInFocus ] = useState( 0 );
+
+	const onChangeFilterOption = ( key = null, filterOption = null ) => {
+		const newFilterOptions = filterOptions.slice( 0 );
+		if ( null === filterOption ) {
+			// Remove a key
+			newFilterOptions.splice( key, 1 );
+			if ( key > 0 ) {
+				setInFocus( key - 1 );
+			}
+		} else {
+			// update a key
+			newFilterOptions.splice( key, 1, filterOption );
+			setInFocus( key );
+		}
+		setAttributes( { filterOptions: newFilterOptions } );
+	};
+
+	const addNewFilterOption = ( key = null ) => {
+		const newFilterOptions = filterOptions.slice( 0 );
+		let newInFocus = 0;
+		if ( 'object' === typeof key ) {
+			newFilterOptions.push( '' );
+			newInFocus = newFilterOptions.length - 1;
+		} else {
+			newFilterOptions.splice( key + 1, 0, '' );
+			newInFocus = key + 1;
+		}
+
+		setInFocus( newInFocus );
+		setAttributes( { filterOptions: newFilterOptions } );
+	};
+
+	let divisionOptions = [];
+
+	for ( const [ key, division ] of Object.entries( divisions ) ) {
+		divisionOptions.push(
+			{ value: key, label: division.name }
+		);
+	}
+
+	function saveMapDivisions() {
+
+	}
+
+	function initializeIsOpen( value ) {
+		const initialIsOpen = {};
+
+		Object.keys( divisions ).forEach( divisionKey => {
+			initialIsOpen[ divisionKey ] = value;
+		});
+
+		return initialIsOpen;
+	}
+
+	const [ infoWindowsOpen, setIinfoWindowsOpen ] = useState( initializeIsOpen( false ) );
+
+
+	const openInfoWindow = ( divisionId ) => {
+
+		setIinfoWindowsOpen( { ...infoWindowsOpen, [ divisionId ]: true } );
+	}
+
+	const closeInfoWindow = ( divisionId ) => {
+
+		setIinfoWindowsOpen( { ...infoWindowsOpen, [ divisionId ]: false } );
+	}
+
+	const [ projectsCompleted, setProjectsCompleted ] = useState( '' );
+	const [ mapDivision, setMapDivision ] = useState( [] );
+	const [ checkedFilterOptions, setCheckedFilterOptions ] = useState(
+		new Array(filterOptions.length).fill(false)
+	);
+
+	function onChangeFilterOptions( position ) {
+		const updatedCheckedFilterOptions = checkedFilterOptions.map( (item, index) =>
+			index === position ? !item : item
+		);
+
+		setCheckedFilterOptions( updatedCheckedFilterOptions );
+	}
+
+	function getOptions( booleanArray, options ) {
+
+		const indices = booleanArray.flatMap( ( value, index ) => value ? index : [] );
+
+		const labels = indices.map( index =>
+			options[ index ]
+		);
+
+		return labels;
+
+	}
+
+	function onChangeMapDivisions( event ) {
+		const value = event.target.value;
+
+		setAttributes({
+			...mapDivisions,
+			[ event.target.key ]: value
+		});
+	}
 
 	const controls = (
 		<>
@@ -100,150 +205,96 @@ function Edit( {
 						}
 					]}
 				/>
+				<Panel header={ `${ divisionName.singular } Settings` }>
+					<PanelBody
+						title={
+							<SelectControl
+								value={ mapDivision }
+								options={ divisionOptions }
+								onChange={ ( selectedDivision ) => setMapDivision( selectedDivision ) }
+							/>
+						}
+						key={ mapDivision }
+						initialOpen={ true }>
+						<PanelRow>
+							<div>
+								<TextControl
+									label="Projects Completed"
+									value={ projectsCompleted }
+									onChange={ setProjectsCompleted }
+								/>
+								{ filterOptions &&
+									<ul>
+										{ filterOptions.map( ( option, index ) => {
+
+											return (
+												<li key={ index }>
+													<CheckboxControl
+														label={ option }
+														checked={ checkedFilterOptions[ index ] }
+														onChange={ () => onChangeFilterOptions( index ) }
+													/>
+												</li>
+											);
+
+ 										} ) }
+									</ul>
+								}
+							</div>
+						</PanelRow>
+						<p>
+							{ JSON.stringify( {
+								[ mapDivision ]: {
+									[ textControlLabel ]: projectsCompleted,
+									[ filterCategoryLabel ]: getOptions( checkedFilterOptions, filterOptions )
+								}
+							} ) }
+						</p>
+					</PanelBody>
+
+					<Button
+						className="coblocks-field-multiple__add-option"
+						icon="insert"
+						label={ __( "Add new division information", 'interactive-map' ) }
+					>
+						{ __( "Add new division information", 'interactive-map' ) }
+					</Button>
+				</Panel>
 			</InspectorControls>
 		</>
 	);
 
-//	const [ inFocus, setInFocus ] = useState( 0 );
-
-	// const onChangeFilterOption = ( key = null, filterOption = null ) => {
-	// 	const newFilterOptions = filterOptions.slice( 0 );
-	// 	if ( null === filterOption ) {
-	// 		// Remove a key
-	// 		newFilterOptions.splice( key, 1 );
-	// 		if ( key > 0 ) {
-	// 			setInFocus( key - 1 );
-	// 		}
-	// 	} else {
-	// 		// update a key
-	// 		newFilterOptions.splice( key, 1, filterOption );
-	// 		setInFocus( key );
-	// 	}
-	// 	setAttributes( { filterOptions: newFilterOptions } );
-	// };
-
-	// const addNewFilterOption = ( key = null ) => {
-	// 	const newFilterOptions = filterOptions.slice( 0 );
-	// 	let newInFocus = 0;
-	// 	if ( 'object' === typeof key ) {
-	// 		newFilterOptions.push( '' );
-	// 		newInFocus = newFilterOptions.length - 1;
-	// 	} else {
-	// 		newFilterOptions.splice( key + 1, 0, '' );
-	// 		newInFocus = key + 1;
-	// 	}
-
-	// 	setInFocus( newInFocus );
-	// 	setAttributes( { filterOptions: newFilterOptions } );
-	// };
-
-	// const [ isOpen, setOpen ] = useState( false );
-    // const openMapFilters = () => setOpen( true );
-    // const closeMapFilters = () => setOpen( false );
-
-	//const divisionControls = [];
 	const divisionSet = [];
 	const infoWindowSet = [];
 
-	//const divisionOptions = {};
-	// for ( const [ key, division ] of Object.entries( divisions ) ) {
-	// 	divisionOptions =
-	// }
-
-	// const divisionOptions = [];
-	// for ( const [ key, division ] of Object.entries( divisions ) ) {
-	// 	divisionOptions.push( { label: division.name, value: key } );
-	// }
-
 	for ( const [ key, division ] of Object.entries( divisions ) ) {
 
-		// const cleanFilterOptions = filterOptions.filter( function( e ) { return e === 0 || e } );
-
-		// const [ projectsCompleted, setProjectsCompleted ] = useState( '' );
-		// const [ mapDivision, setMapDivision ] = useState( [] );
-
 		let hasInformation = false;
-
-		// divisionControls.push(
-		// 	<PanelBody key={ key } title={ division.name } initialOpen={ false }>
-		// 		<PanelRow>
-		// 			<SelectControl
-		// 				label="Division"
-		// 				value={ mapDivision }
-		// 				options={ divisionOptions }
-		// 				onChange={ ( token ) => setSelectedDivision( token ) }
-		// 			/>
-
-		// 			<InfoWindowForm>
-		// 				<TextControl
-		// 					label="Projects Completed"
-		// 					value={ projectsCompleted }
-		// 					onChange={ setProjectsCompleted }
-		// 				/>
-		// 				{ cleanFilterOptions.length > 0 &&
-		// 					cleanFilterOptions.map( ( filterOption, index ) => (
-		// 						<CheckboxControl key={ index }
-		// 							label={ filterOption }
-		// 						/>
-		// 					))
-		// 				}
-		// 			</InfoWindowForm>
-		// 		</PanelRow>
-		// 	</PanelBody>
-		// );
-
-		// const content = [];
-
-		// if ( projectsCompleted && projectsCompleted !== '' ) {
-
-		// 	content.push(
-		// 		<p>
-		// 			<span class="info-window-subtitle">Projects Completed</span>:
-		// 			{ projectsCompleted }
-		// 		</p>
-		// 	);
-		// }
-
-		// if ( projectTypes && projectTypes !== [] ) {
-
-		// 	const listItems = projectTypes.map( ( item ) =>
-		// 		<li key={ item }>{ item }</li>
-		// 	);
-
-		// 	content.push(
-		// 		<>
-		// 			<p class="info-window-subtitle">Project Types</p>
-		// 			<ul>
-		// 				{ listItems }
-		// 			</ul>
-		// 		</>
-		// 	);
-		// }
 
 		const content = [];
 
 		if ( infoWindows.hasOwnProperty( [ key ] ) ) {
 			hasInformation = true;
 
-			if ( hasInformation && infoWindows[ key ][ "Projects Completed" ] !== '' ) {
+			if ( hasInformation && infoWindows[ key ][ `${ textControlLabel }` ] !== '' ) {
 
 				content.push(
 					<p>
-						<span class="info-window-subtitle">Projects Completed: </span>
-						{ infoWindows[ key ][ "Projects Completed" ] }
+						<span class="info-window-subtitle">{ textControlLabel }: </span>
+						{ infoWindows[ key ][ `${ textControlLabel }` ] }
 					</p>
 				);
 			}
 
-			if ( hasInformation && infoWindows[ key ][ "Project Types" ] !== [] ) {
+			if ( hasInformation && infoWindows[ key ][ `${ filterCategoryLabel }` ] !== [] ) {
 
-			const listItems = infoWindows[ key ][ "Project Types" ].map( ( item ) =>
+			const listItems = infoWindows[ key ][ `${ filterCategoryLabel }` ].map( ( item ) =>
 				<li key={ item }>{ item }</li>
 			);
 
 			content.push(
 				<>
-					<p class="info-window-subtitle">Project Types</p>
+					<p class="info-window-subtitle">{ textControlLabel }</p>
 					<ul>
 						{ listItems }
 					</ul>
@@ -257,6 +308,7 @@ function Edit( {
 			<InfoWindow
 				infoFor={ key }
 				title={ division.name }
+				isOpen={ infoWindowsOpen[ key ] }
 				content={ content }
 			/>
 		);
@@ -268,162 +320,65 @@ function Edit( {
 				path={ division.path }
 				ofMap={ mapId }
 				isHighlighted={ hasInformation }
+				openInfoWindow={ openInfoWindow }
+				closeInfoWindow={ closeInfoWindow }
 			/>
 		);
 	}
 
-	// for ( const [ division, information ] of Object.entries( mapDivisions ) ) {
+	const filterControl = (
+		<>
+			{ isSelected && (
+				<Button
+					icon={ infoWindows.length >= 1 ? "edit" : "insert" }
+					label={ infoWindows.length >= 1 ? `Edit ${ divisionName.singular } Information` : `Add ${ divisionName.singular } Information` }
+					onClick={ openMapFilters }
+				>
+					{ filterOptions.length >= 1 ? __( `Edit ${ divisionName.singular } Information`, 'interactive-map' ) : __( `Add ${ divisionName.singular } Information`, 'interactive-map' ) }
+				</Button>
+			)}
+			{ isOpen && (
+				<Modal title="Info Windows" onRequestClose={ closeMapFilters }>
 
-	// 	const content = [];
+					<Panel>
+					<PanelBody title={ `${ filterCategoryLabel }` }>
+						<ol>
+							{ filterOptions.map( ( filterOption, index ) => (
+								<FieldOption
+									type='select'
+									key={ index }
+									option={ filterOption }
+									index={ index }
+									onChangeOption={ onChangeFilterOption }
+									onAddOption={ addNewFilterOption }
+									isInFocus={ index === inFocus && isSelected }
+									isSelected={ isSelected }
+								/>
+							) ) }
+							<Button
+								className="coblocks-field-multiple__add-option"
+								icon="insert"
+								label={ __( "Add filter option", 'interactive-map' ) }
+								onClick={ addNewFilterOption }
+							>
+								{ __( "Add filter option", 'interactive-map' ) }
+							</Button>
+						</ol>
+					</PanelBody>
+				</Panel>
 
-	// 	if ( information ) {
+					<Button
+						icon="save"
+						label={ __( `Save ${ divisionName.singular } information`, 'interactive-map' ) }
+						onClick={ saveMapDivisions }
+					>
+						{ __( `Save ${ divisionName.singular } information`, 'interactive-map' ) }
+					</Button>
+				</Modal>
+			) }
 
-	// 		for ( const [ key, value ] of Object.entries( information ) ) {
-	// 			if ( Array.isArray( value ) ) {
-
-	// 				const listItems = value.map( ( item ) =>
-	// 					<li key={ item }>{ item }</li>
-	// 				);
-
-	// 				content.push(
-	// 					<>
-	// 						<p class="info-window-subtitle">{ key }</p>
-	// 						<ul>
-	// 							{ listItems }
-	// 						</ul>
-	// 					</>
-	// 				);
-	// 			} else {
-	// 				content.push(
-	// 					<p><span class="info-window-subtitle">{ key }</span>: { value }</p>
-	// 				);
-	// 			}
-
-	// 		}
-	// 	}
-
-	// 	infoWindowSet.push(
-	// 		<InfoWindow
-	// 			infoFor={ division }
-	// 			title={ divisions[ division ].name }
-	// 			center={ divisions[ division ].center }
-	// 			content={ content }
-	// 		/>
-	// 	);
-	// }
-
-
-	// const filterControl = (
-	// 	<>
-	// 		{ isSelected && (
-	// 			<Button
-	// 				icon={ filterOptions.length >= 1 ? "edit" : "insert" }
-	// 				label={ filterOptions.length >= 1 ? "Edit Map Filters" : "Add Map Filter" }
-	// 				onClick={ openMapFilters }
-	// 			>
-	// 				{ filterOptions.length >= 1 ? __( 'Edit Map Filter', 'interactive-map' ) : __( 'Add Map Filter', 'interactive-map' ) }
-	// 			</Button>
-	// 		)}
-	// 		{ isOpen && (
-	// 			<Modal title="Map Filters" onRequestClose={ closeMapFilters }>
-	// 				<ol>
-	// 					{ filterOptions.map( ( filterOption, index ) => (
-	// 						<FieldOption
-	// 							type='select'
-	// 							key={ index }
-	// 							option={ filterOption }
-	// 							index={ index }
-	// 							onChangeOption={ onChangeFilterOption }
-	// 							onAddOption={ addNewFilterOption }
-	// 							isInFocus={ index === inFocus && isSelected }
-	// 							isSelected={ isSelected }
-	// 						/>
-	// 					) ) }
-	// 					<Button
-	// 						className="coblocks-field-multiple__add-option"
-	// 						icon="insert"
-	// 						label={ __( "Add filter option", 'interactive-map' ) }
-	// 						onClick={ addNewFilterOption }
-	// 					>
-	// 						{ __( "Add filter option", 'interactive-map' ) }
-	// 					</Button>
-	// 				</ol>
-
-	// 				{ filterOptions.length >= 1 && (
-	// 					<Panel header={ `${ divisionName.singular } settings` }>
-	// 						{ divisionControls }
-	// 					</Panel>
-	// 				)}
-	// 			</Modal>
-	// 		) }
-
-	// 	</>
-	// );
-		// const [ projectsCompleted, setProjectsCompleted ] = useState( '' );
-		// const [ mapDivision, setMapDivision ] = useState( [] );
-
-	// 	const filterControl = (
-	// 	<>
-	// 		{ isSelected && (
-	// 			<Button
-	// 				icon={ infoWindows.length >= 1 ? "edit" : "insert" }
-	// 				label={ infoWindows.length >= 1 ? "Edit Info Windows" : "Add Info Window" }
-	// 				onClick={ openMapFilters }
-	// 			>
-	// 				{ filterOptions.length >= 1 ? __( 'Edit Info Windows', 'interactive-map' ) : __( 'Add Info Windows', 'interactive-map' ) }
-	// 			</Button>
-	// 		)}
-	// 		{ isOpen && (
-	// 			<Modal title="Info Windows" onRequestClose={ closeMapFilters }>
-	// 				<Panel>
-	// 					{/* { filterOptions.map( ( filterOption, index ) => (
-	// 						<FieldOption
-	// 							type='select'
-	// 							key={ index }
-	// 							option={ filterOption }
-	// 							index={ index }
-	// 							onChangeOption={ onChangeFilterOption }
-	// 							onAddOption={ addNewFilterOption }
-	// 							isInFocus={ index === inFocus && isSelected }
-	// 							isSelected={ isSelected }
-	// 						/>
-	// 					) ) } */}
-	// 					<PanelBody
-	// 						key={ mapDivision }
-	// 						title={ isSelected ? (
-	// 							<SelectControl
-	// 								label="Division"
-	// 								value={ mapDivision }
-	// 								options={ divisionOptions }
-	// 								onChange={ ( selectedDivision ) => setMapDivision( selectedDivision ) }
-	// 							/>
-	// 							) : ( mapDivision )
-	// 						}
-	// 						initialOpen={ false }>
-	// 						<PanelRow>
-	// 						<InfoWindowForm filterOptions={ filterOptions } />
-	// 						</PanelRow>
-	// 					</PanelBody>
-	// 					<Button
-	// 						className="coblocks-field-multiple__add-option"
-	// 						icon="insert"
-	// 						label={ __( "Add filter option", 'interactive-map' ) }
-	// 						onClick={ addNewFilterOption }
-	// 					>
-	// 						{ __( "Add filter option", 'interactive-map' ) }
-	// 					</Button>
-	// 				</Panel>
-
-	// 				{/* { filterOptions.length >= 1 && (
-	// 					<Panel header={ `${ divisionName.singular } settings` }>
-	// 						{ divisionControls }
-	// 					</Panel>
-	// 				)} */}
-	// 			</Modal>
-	// 		) }
-
-	// 	</>
-	// );
+		</>
+	);
 
 	const mapColorStyle = mapColor !== undefined ? {
 		"--cjd-blocks--interactive-map--map-color": `var(--wp--preset--color--${mapColor})`
@@ -436,16 +391,15 @@ function Edit( {
 	return (
 		<div { ...useBlockProps( { className: "is-info-window-bounds" } ) } style={ Object.assign( {}, mapColorStyle, highlightColorStyle ) } >
 			{ controls }
-			{/* { filterControl } */}
+			{ filterControl }
 			<svg xmlns="http://www.w3.org/2000/svg"
 				id={ `cjd-blocks-interactive-map-${ mapId }` }
 				viewBox={ viewBox }
 				preserveAspectRatio="true"
 			>
 				{ divisionSet }
-				{/* { borders.render() } */}
+				{ borders.render() }
 				{ separators.render() }
-				{/* { infoWindowSet } */}
 			</svg>
 			{ infoWindowSet }
 		</div>

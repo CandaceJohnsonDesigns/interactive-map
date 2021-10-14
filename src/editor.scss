@@ -6,3 +6,19 @@
 
 // .wp-block-cjd-blocks-interactive-map {
 // }
+
+.interface-complementary-area {
+	h2,
+	h3 {
+		margin-bottom: 0;
+	}
+}
+.components-panel__body-toggle {
+	.components-base-control:last-child {
+		margin-bottom: 0;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+}
